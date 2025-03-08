@@ -60,8 +60,8 @@ class _DashboardState extends State<Dashboard> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.white,
         elevation: 0,
+        backgroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.deepPurple),
@@ -111,6 +111,7 @@ class _DashboardState extends State<Dashboard> {
     final daysRemaining = payment.dueDate.difference(DateTime.now()).inDays;
 
     return Card(
+      color: Colors.white,
       margin: const EdgeInsets.symmetric(vertical: 8),
       elevation: 4,
       shape: RoundedRectangleBorder(
@@ -170,29 +171,31 @@ class _DashboardState extends State<Dashboard> {
               ],
             ),
             const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const PaymentScreen(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PaymentScreen(),
+                      ),
+                    );
+                  },
+                  icon: Icon(
+                    Icons.monetization_on_rounded,
+                    color: Colors.deepPurple,
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
+                  label: Text(
+                    'Make Payment',
+                    style: TextStyle(
+                      color: Colors.deepPurple,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-                minimumSize: const Size(double.infinity, 48),
-              ),
-              child: const Text(
-                "Pay Now",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white,
-                ),
-              ),
+              ],
             ),
           ],
         ),

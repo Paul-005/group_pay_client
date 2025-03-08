@@ -1,29 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class PaymentItem {
-  final String title;
-  final String description;
-  final double amount;
-  final DateTime dueDate;
-  final bool isUrgent;
+final Uri _url = Uri.parse(
+    'upi://pay?pa=user@oksbi&pn=Admin&am=100&cu=INR&tn=Payment%20for%20services');
 
-  PaymentItem({
-    required this.title,
-    required this.description,
-    required this.amount,
-    required this.dueDate,
-    this.isUrgent = false,
-  });
+Future<void> _launchGPayUrl(BuildContext context) async {
+  try {
+    if (await canLaunchUrl(_url)) {
+      await launchUrl(_url);
+    } else {
+      _showFallbackDialog(context);
+    }
+  } catch (e) {
+    _showErrorDialog(context);
+  }
+}
+
+void _showFallbackDialog(BuildContext context) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text("Please install Google Pay or another UPI app."),
+      backgroundColor: Colors.deepPurple,
+    ),
+  );
+}
+
+void _showErrorDialog(BuildContext context) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text("An error occurred. Please try again later."),
+      backgroundColor: Colors.deepPurple,
+    ),
+  );
 }
 
 class PaymentScreen extends StatelessWidget {
-  const PaymentScreen({
-    super.key,
-  });
+  const PaymentScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: const Text(
           "Make Payment",
@@ -32,175 +49,152 @@ class PaymentScreen extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.deepPurple),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Payment Details
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "payment.title",
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.deepPurple,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      "payment.description",
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Amount:",
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey[800],
-                          ),
-                        ),
-                        Text(
-                          "454.00",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.deepPurple,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Due Date:",
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey[800],
-                          ),
-                        ),
-                        Text(
-                          "12/4/2021",
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey[800],
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildPaymentSummary(),
+                const SizedBox(height: 20),
+                const Text("Select Payment Method",
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 20),
+                _buildPaymentMethods(context),
+                const SizedBox(height: 30),
+                _buildSharePaymentButton(context),
+              ],
             ),
-            const SizedBox(height: 24),
-
-            // Payment Options
-            const Text(
-              "Choose Payment Method:",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.deepPurple,
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Pay via Google Pay
-            _buildPaymentOption(
-              icon: Icons.payment,
-              title: "Pay via Google Pay",
-              onTap: () {
-                // TODO: Implement Google Pay integration
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Redirecting to Google Pay...")),
-                );
-              },
-            ),
-
-            const SizedBox(height: 12),
-
-            // Pay via Cash
-            _buildPaymentOption(
-              icon: Icons.money,
-              title: "Pay via Cash",
-              onTap: () {
-                // TODO: Mark payment as paid via cash
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Marked as paid via cash.")),
-                );
-              },
-            ),
-
-            const SizedBox(height: 12),
-
-            // Let Someone Else Pay
-            _buildPaymentOption(
-              icon: Icons.people,
-              title: "Let Someone Else Pay",
-              onTap: () {
-                // TODO: Implement "Let Someone Else Pay" logic
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text("Request sent to another user.")),
-                );
-              },
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  // Reusable Payment Option Widget
-  Widget _buildPaymentOption({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+  Widget _buildPaymentSummary() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 10),
+        ],
       ),
-      child: ListTile(
-        leading: Icon(icon, color: Colors.deepPurple),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.deepPurple,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: const [
+          Text("Payment Summary",
+              style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepPurple)),
+          SizedBox(height: 20),
+          Text("Title: Gym Membership",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+          SizedBox(height: 8),
+          Text("Description: Monthly membership fee",
+              style: TextStyle(fontSize: 16, color: Colors.grey)),
+          Divider(height: 35, thickness: 1),
+          Text("Amount: ₹500.00",
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepPurple)),
+          SizedBox(height: 12),
+          Text("Due Date: 10/03/2025",
+              style: TextStyle(fontSize: 16, color: Colors.grey)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentMethods(BuildContext context) {
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisSpacing: 16,
+      mainAxisSpacing: 16,
+      childAspectRatio: 1.2,
+      children: [
+        _buildPaymentMethodCard(context,
+            icon: Icons.account_balance_wallet,
+            name: "Google Pay",
+            color: Colors.blue,
+            onTap: () => _launchGPayUrl(context)),
+        _buildPaymentMethodCard(context,
+            icon: Icons.credit_card,
+            name: "Credit Card",
+            color: Colors.purple,
+            onTap: () {}),
+        _buildPaymentMethodCard(context,
+            icon: Icons.group,
+            name: "Let Others Pay",
+            color: Colors.green,
+            onTap: () {}),
+        _buildPaymentMethodCard(context,
+            icon: Icons.money,
+            name: "Cash",
+            color: Colors.orange,
+            onTap: () {}),
+      ],
+    );
+  }
+
+  Widget _buildPaymentMethodCard(BuildContext context,
+      {required IconData icon,
+      required String name,
+      required Color color,
+      required VoidCallback onTap}) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                    color: color.withOpacity(0.1), shape: BoxShape.circle),
+                child: Icon(icon, color: color, size: 28),
+              ),
+              const SizedBox(height: 10),
+              Text(name,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w500)),
+            ],
           ),
         ),
-        trailing: const Icon(Icons.arrow_forward_ios, color: Colors.deepPurple),
-        onTap: onTap,
+      ),
+    );
+  }
+
+  Widget _buildSharePaymentButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            backgroundColor: Colors.deepPurple),
+        onPressed: () {},
+        icon: const Icon(Icons.share, color: Colors.white),
+        label: const Text("Share Payment Request",
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white)),
       ),
     );
   }
