@@ -3,7 +3,7 @@ name: Flutter CI
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build:
@@ -15,13 +15,13 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: '17' # Recommended for Flutter
+          distribution: "zulu"
+          java-version: "17" # Recommended for Flutter
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.x' # Ensures Dart 3.x compatibility
+          flutter-version: "3.x" # Ensures Dart 3.x compatibility
 
       - name: Install dependencies
         run: flutter pub get

@@ -100,7 +100,7 @@ class ProfilePic extends StatelessWidget {
             CircleAvatar(
               backgroundColor: Colors.grey[200],
               backgroundImage: NetworkImage(
-                  "https://i.postimg.cc/0jqKB6mS/Profile-Image.png"),
+                  "https://cdn-icons-png.flaticon.com/128/3135/3135768.png"),
             ),
             Positioned(
               right: -8,
