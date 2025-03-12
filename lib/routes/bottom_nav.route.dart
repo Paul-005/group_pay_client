@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:group_pay_client/auth/acception_wait.screen.dart';
-import 'package:group_pay_client/auth/login_screen.dart';
-import 'package:group_pay_client/auth/signup_screen.dart';
+import 'package:group_pay_client/auth/join_group.dart';
 import 'package:group_pay_client/dashboard/dashboard.dart';
 import 'package:group_pay_client/settings/settings.screen.dart';
 
@@ -25,7 +23,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
 
   final pages = [
     Dashboard(),
-    PendingRequestScreen(),
+    StudentAdminCodeEntry(),
     ProfileScreen(),
   ];
 

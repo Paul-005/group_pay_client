@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 final Uri _url = Uri.parse(
-    'upi://pay?pa=user@oksbi&pn=Admin&am=100&cu=INR&tn=Payment%20for%20services');
+    'upi://pay?pa=babuckurian@okicici&pn=Admin&am=100&cu=INR&tn=Payment%20for%20services');
 
 Future<void> _launchGPayUrl(BuildContext context) async {
   try {
