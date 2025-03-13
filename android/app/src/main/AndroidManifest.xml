@@ -45,5 +45,6 @@
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="https" />
         </intent>
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     </queries>
 </manifest>
