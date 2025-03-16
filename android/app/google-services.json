@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "545706843477",
+    "project_id": "grouppay-c7602",
+    "storage_bucket": "grouppay-c7602.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:545706843477:android:f076c102940e7e3e3563dc",
+        "android_client_info": {
+          "package_name": "com.paulbabu05.group_pay_admin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYwuyifjExZ04xmT71_A1uXA5rXmBTX8g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:545706843477:android:a4d2f8c991f141533563dc",
+        "android_client_info": {
+          "package_name": "com.paulbabu05.group_pay_client"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYwuyifjExZ04xmT71_A1uXA5rXmBTX8g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

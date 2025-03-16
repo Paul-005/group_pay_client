@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:group_pay_client/dashboard/dashboard.dart';
 import 'package:group_pay_client/dashboard/pay_now.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 // Model for Payment
 class PaymentItem {
@@ -26,28 +29,47 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  // Mock data - replace with actual data fetching logic
-  final List<PaymentItem> pendingPayments = [
-    PaymentItem(
-      title: "Rent Split",
-      description: "Monthly apartment rent for June",
-      amount: 450.00,
-      dueDate: DateTime.now().add(const Duration(days: 5)),
-      isUrgent: true,
-    ),
-    PaymentItem(
-      title: "Utilities Shared",
-      description: "Electricity and water bill",
-      amount: 120.50,
-      dueDate: DateTime.now().add(const Duration(days: 10)),
-    ),
-    PaymentItem(
-      title: "Groceries Group",
-      description: "Monthly grocery expenses",
-      amount: 75.25,
-      dueDate: DateTime.now().add(const Duration(days: 15)),
-    ),
-  ];
+  List<PaymentItem> pendingPayments = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAdminPosts();
+  }
+
+  Future<void> _fetchAdminPosts() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('students')
+          .doc(user.uid)
+          .get();
+
+      if (userDoc.exists) {
+        final adminCode = userDoc.data()?['adminCode'] as String?;
+
+        if (adminCode != null) {
+          final postsSnapshot = await FirebaseFirestore.instance
+              .collection('posts')
+              .where('adminCode', isEqualTo: adminCode)
+              .get();
+
+          setState(() {
+            pendingPayments = postsSnapshot.docs.map((doc) {
+              final data = doc.data();
+              return PaymentItem(
+                title: data['title'] ?? 'No Title',
+                description: data['description'] ?? 'No Description',
+                amount: (data['amount'] as num?)?.toDouble() ?? 0.0,
+                dueDate: (data['lastDate'] as Timestamp?)?.toDate() ??
+                    DateTime.now(),
+              );
+            }).toList();
+          });
+        }
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,38 +91,56 @@ class _DashboardState extends State<Dashboard> {
               // TODO: Implement notifications
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.deepPurple),
+            onPressed: () {
+              FirebaseAuth.instance.signOut();
+            },
+          ),
         ],
       ),
-      body: Container(
-        margin: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: ListView.builder(
-                itemCount:
-                    pendingPayments.length + 1, // Extra item for the heading
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    // First item: Header text
-                    return Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        "Pending Payments",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
+      body: RefreshIndicator(
+        onRefresh: _fetchAdminPosts,
+        child: Container(
+          margin: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: pendingPayments.isEmpty
+                    ? const Center(
+                        child: Card(
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Text("No pending payments found."),
+                          ),
                         ),
+                      )
+                    : ListView.builder(
+                        itemCount: pendingPayments.length +
+                            1, // Extra item for the heading
+                        itemBuilder: (context, index) {
+                          if (index == 0) {
+                            // First item: Header text
+                            return const Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: Text(
+                                "Pending Payments",
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.deepPurple,
+                                ),
+                              ),
+                            );
+                          }
+                          // Remaining items: Payment cards
+                          return _buildPaymentCard(pendingPayments[index - 1]);
+                        },
                       ),
-                    );
-                  }
-                  // Remaining items: Payment cards
-                  return _buildPaymentCard(pendingPayments[index - 1]);
-                },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -162,12 +202,21 @@ class _DashboardState extends State<Dashboard> {
                     color: Colors.deepPurple,
                   ),
                 ),
-                Text(
-                  "Due in $daysRemaining days",
-                  style: TextStyle(
-                    color: daysRemaining <= 3 ? Colors.red : Colors.grey,
+                if (payment.dueDate.isBefore(DateTime.now()))
+                  const Text(
+                    "Overdue",
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                else
+                  Text(
+                    "Due in $daysRemaining days",
+                    style: TextStyle(
+                      color: daysRemaining <= 3 ? Colors.red : Colors.grey,
+                    ),
                   ),
-                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -179,7 +228,13 @@ class _DashboardState extends State<Dashboard> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PaymentScreen(),
+                        builder: (context) => PaymentScreen(
+                          title: payment.title,
+                          description: payment.description,
+                          amount: payment.amount,
+                          dueDate: payment.dueDate,
+                          // bankAccount: payment.bank_upi,
+                        ),
                       ),
                     );
                   },

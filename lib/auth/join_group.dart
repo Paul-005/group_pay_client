@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class StudentAdminCodeEntry extends StatefulWidget {
   const StudentAdminCodeEntry({
@@ -61,6 +63,14 @@ class _StudentAdminCodeEntryState extends State<StudentAdminCodeEntry> {
         iconTheme: const IconThemeData(color: Colors.deepPurple),
         backgroundColor: Colors.white,
         elevation: 0,
+        actions: [
+          IconButton(
+            onPressed: () {
+              FirebaseAuth.instance.signOut();
+            },
+            icon: const Icon(Icons.exit_to_app),
+          ),
+        ],
       ),
       body: Center(
         child: Padding(
@@ -155,7 +165,102 @@ class _StudentAdminCodeEntryState extends State<StudentAdminCodeEntry> {
                   width: 200,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: null, //disable button
+                    onPressed: () async {
+                      //disable button
+                      setState(() {
+                        _isVerifying = true;
+                        _errorMessage = null;
+                        _isSuccess = false;
+                      });
+
+                      String adminCode = _controllers.map((c) => c.text).join();
+
+                      if (adminCode.length != 6) {
+                        setState(() {
+                          _errorMessage =
+                              'Please enter the complete 6-digit code.';
+                          _isVerifying = false;
+                        });
+                        return;
+                      }
+
+                      try {
+                        // Reference to the 'groups' collection
+                        CollectionReference groups =
+                            FirebaseFirestore.instance.collection('groups');
+
+                        // Check if the document with the adminCode exists
+                        DocumentSnapshot groupDoc =
+                            await groups.doc(adminCode).get();
+
+                        if (groupDoc.exists) {
+                          // Get the admin's UID from the group document
+                          String adminUid = groupDoc['admin'];
+
+                          // Reference to the 'admins' collection
+                          CollectionReference admins =
+                              FirebaseFirestore.instance.collection('admin');
+
+                          // Get current user from Firebase Auth
+                          User? user = FirebaseAuth.instance.currentUser;
+
+                          // Get current timestamp
+                          Timestamp createdAt = Timestamp.now();
+
+                          // Create a new student request object
+                          Map<String, dynamic> studentRequest = {
+                            'email': user?.email,
+                            'uid': user?.uid,
+                            'createdAt': createdAt,
+                          };
+
+                          // Update the admin's document to include the new student request
+                          await admins.doc(adminUid).update({
+                            'student_requests':
+                                FieldValue.arrayUnion([studentRequest]),
+                          });
+
+                          // Update profile_completed status in students collection to 2
+                          //Also update adminCode in students collection
+                          await FirebaseFirestore.instance
+                              .collection('students')
+                              .doc(user?.uid)
+                              .update({
+                            'profile_completed': 2,
+                            'adminCode': adminCode,
+                          });
+
+                          setState(() {
+                            _isSuccess = true;
+                            _isVerifying = false;
+                          });
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              backgroundColor: Colors.green,
+                              content: Text('Code verified successfully!'),
+                            ),
+                          );
+                        } else {
+                          // If the group doesn't exist, show an error message
+                          setState(() {
+                            _errorMessage = 'Invalid admin code.';
+                            _isVerifying = false;
+                          });
+                          return;
+                        }
+                      } catch (e) {
+                        setState(() {
+                          _errorMessage =
+                              'An error occurred. Please try again.'; //e.toString();
+                          _isVerifying = false;
+                        });
+                      } finally {
+                        setState(() {
+                          _isVerifying = false;
+                        });
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.deepPurple,
                       foregroundColor: Colors.white,
@@ -165,13 +270,18 @@ class _StudentAdminCodeEntryState extends State<StudentAdminCodeEntry> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      'Verify Code',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: _isVerifying
+                        ? const CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          )
+                        : const Text(
+                            'Verify Code',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 20),

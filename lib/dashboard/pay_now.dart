@@ -35,7 +35,20 @@ void _showErrorDialog(BuildContext context) {
 }
 
 class PaymentScreen extends StatelessWidget {
-  const PaymentScreen({super.key});
+  final String title;
+  final String description;
+  final double amount;
+  final DateTime dueDate;
+  // final String bank_upi;
+
+  const PaymentScreen({
+    Key? key,
+    required this.title,
+    required this.description,
+    required this.amount,
+    required this.dueDate,
+    // required this.bank_upi,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -89,27 +102,27 @@ class PaymentScreen extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text("Payment Summary",
+        children: [
+          const Text("Payment Summary",
               style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: Colors.deepPurple)),
-          SizedBox(height: 20),
-          Text("Title: Gym Membership",
+          const SizedBox(height: 20),
+          Text("Title: $title",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-          SizedBox(height: 8),
-          Text("Description: Monthly membership fee",
+          const SizedBox(height: 8),
+          Text("Description: $description",
               style: TextStyle(fontSize: 16, color: Colors.grey)),
-          Divider(height: 35, thickness: 1),
-          Text("Amount: ₹500.00",
-              style: TextStyle(
+          const Divider(height: 35, thickness: 1),
+          Text("Amount: \$${amount.toStringAsFixed(2)}",
+              style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.deepPurple)),
-          SizedBox(height: 12),
-          Text("Due Date: 10/03/2025",
-              style: TextStyle(fontSize: 16, color: Colors.grey)),
+          const SizedBox(height: 12),
+          Text("Due Date: ${dueDate.toString()}",
+              style: const TextStyle(fontSize: 16, color: Colors.grey)),
         ],
       ),
     );

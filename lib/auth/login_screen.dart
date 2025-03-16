@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -33,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   _loading() {
-    return CircularProgressIndicator(
+    return const CircularProgressIndicator(
       valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurple),
     );
   }
@@ -41,12 +42,12 @@ class _LoginPageState extends State<LoginPage> {
   _header(context) {
     return Column(
       children: [
-        Text(
+        const Text(
           "Welcome Back",
           style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
         ),
-        Text("Enter your credential to login"),
-        SizedBox(height: 20),
+        const Text("Enter your credential to login"),
+        const SizedBox(height: 20),
         if (isLoading) _loading(),
       ],
     );
@@ -63,13 +64,13 @@ class _LoginPageState extends State<LoginPage> {
             });
           },
           decoration: InputDecoration(
-              hintText: "Username",
+              hintText: "Email",
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(18),
                   borderSide: BorderSide.none),
               fillColor: Colors.deepPurple.withOpacity(0.1),
               filled: true,
-              prefixIcon: const Icon(Icons.person)),
+              prefixIcon: const Icon(Icons.email)),
         ),
         const SizedBox(height: 10),
         TextField(
@@ -91,7 +92,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
         const SizedBox(height: 30),
         ElevatedButton(
-          onPressed: () {
+          onPressed: () async {
             if (emailAddress.isEmpty || password.isEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -100,7 +101,35 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               );
               return;
-            } else {}
+            } else {
+              setState(() {
+                isLoading = true;
+              });
+              try {
+                await FirebaseAuth.instance.signInWithEmailAndPassword(
+                  email: emailAddress,
+                  password: password,
+                );
+                // Login successful
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    backgroundColor: Colors.green,
+                    content: Text('Login Successful!'),
+                  ),
+                );
+              } on FirebaseAuthException catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    backgroundColor: Colors.red,
+                    content: Text('Failed to login: ${e.message}'),
+                  ),
+                );
+              } finally {
+                setState(() {
+                  isLoading = false;
+                });
+              }
+            }
           },
           style: ElevatedButton.styleFrom(
             shape: const StadiumBorder(),
