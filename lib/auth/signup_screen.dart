@@ -55,6 +55,7 @@ class _SignupPageState extends State<SignupPage> {
           'email': user?.email,
           'profile_completed': 1,
           'uid': user?.uid,
+          'accepted': 0,
         };
 
         // Add the document to Firestore

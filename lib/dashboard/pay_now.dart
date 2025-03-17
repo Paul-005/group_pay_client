@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-final Uri _url = Uri.parse(
-    'upi://pay?pa=babuckurian@okicici&pn=Admin&am=100&cu=INR&tn=Payment%20for%20services');
-
-Future<void> _launchGPayUrl(BuildContext context) async {
+Future<void> _launchGPayUrl(BuildContext context, Uri _url) async {
   try {
     if (await canLaunchUrl(_url)) {
       await launchUrl(_url);
+      print(_url);
     } else {
       _showFallbackDialog(context);
     }
@@ -39,7 +37,7 @@ class PaymentScreen extends StatelessWidget {
   final String description;
   final double amount;
   final DateTime dueDate;
-  // final String bank_upi;
+  final String? bank_upi;
 
   const PaymentScreen({
     Key? key,
@@ -47,7 +45,7 @@ class PaymentScreen extends StatelessWidget {
     required this.description,
     required this.amount,
     required this.dueDate,
-    // required this.bank_upi,
+    this.bank_upi,
   }) : super(key: key);
 
   @override
@@ -78,7 +76,6 @@ class PaymentScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 _buildPaymentMethods(context),
                 const SizedBox(height: 30),
-                _buildSharePaymentButton(context),
               ],
             ),
           ),
@@ -137,11 +134,17 @@ class PaymentScreen extends StatelessWidget {
       mainAxisSpacing: 16,
       childAspectRatio: 1.2,
       children: [
-        _buildPaymentMethodCard(context,
-            icon: Icons.account_balance_wallet,
-            name: "Google Pay",
-            color: Colors.blue,
-            onTap: () => _launchGPayUrl(context)),
+        _buildPaymentMethodCard(
+          context,
+          icon: Icons.account_balance_wallet,
+          name: "Google Pay",
+          color: Colors.blue,
+          onTap: () {
+            final url =
+                'upi://pay?pa=$bank_upi&pn=Admin&am=$amount&cu=INR&tn=${Uri.encodeComponent(title)}';
+            _launchGPayUrl(context, Uri.parse(url));
+          },
+        ),
         _buildPaymentMethodCard(context,
             icon: Icons.credit_card,
             name: "Credit Card",
@@ -190,24 +193,6 @@ class PaymentScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSharePaymentButton(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            backgroundColor: Colors.deepPurple),
-        onPressed: () {},
-        icon: const Icon(Icons.share, color: Colors.white),
-        label: const Text("Share Payment Request",
-            style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.white)),
       ),
     );
   }

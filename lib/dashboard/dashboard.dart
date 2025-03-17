@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:group_pay_client/dashboard/dashboard.dart';
 import 'package:group_pay_client/dashboard/pay_now.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,6 +10,7 @@ class PaymentItem {
   final double amount;
   final DateTime dueDate;
   final bool isUrgent;
+  final String bank_upi;
 
   PaymentItem({
     required this.title,
@@ -18,6 +18,7 @@ class PaymentItem {
     required this.amount,
     required this.dueDate,
     this.isUrgent = false,
+    required this.bank_upi,
   });
 }
 
@@ -63,8 +64,10 @@ class _DashboardState extends State<Dashboard> {
                 amount: (data['amount'] as num?)?.toDouble() ?? 0.0,
                 dueDate: (data['lastDate'] as Timestamp?)?.toDate() ??
                     DateTime.now(),
+                bank_upi: data['bank_upi'] ?? 'No UPI',
               );
             }).toList();
+            pendingPayments.sort((a, b) => a.dueDate.compareTo(b.dueDate));
           });
         }
       }
@@ -233,7 +236,7 @@ class _DashboardState extends State<Dashboard> {
                           description: payment.description,
                           amount: payment.amount,
                           dueDate: payment.dueDate,
-                          // bankAccount: payment.bank_upi,
+                          bank_upi: payment.bank_upi,
                         ),
                       ),
                     );

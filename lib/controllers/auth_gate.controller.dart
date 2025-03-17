@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:group_pay_client/auth/acception_wait.screen.dart';
 import 'package:group_pay_client/auth/join_group.dart';
 import 'package:group_pay_client/auth/signup_screen.dart';
 import 'package:group_pay_client/dashboard/dashboard.dart';
@@ -45,12 +46,15 @@ class AuthGate extends StatelessWidget {
           );
         }
 
+        final data = snapshot.data!.data() as Map<String, dynamic>?;
         if (snapshot.hasData && snapshot.data!.exists) {
-          final data = snapshot.data!.data() as Map<String, dynamic>?;
           final profileCompleted = data?['profile_completed'] as int?;
+          final accepted = data?['accepted'] as int?;
 
           if (profileCompleted == 1) {
             return StudentAdminCodeEntry();
+          } else if (accepted == 0) {
+            return PendingRequestScreen();
           } else {
             return Dashboard();
           }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 // Note: You'll need to add the lottie package to your pubspec.yaml
 // dependencies:
 //   lottie: ^2.7.0
@@ -23,30 +24,17 @@ class PendingRequestScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // This is where you'd add your Lottie animation
-              // For now, we'll use a placeholder Container
-              Container(
-                width: 200,
-                height: 200,
-                decoration: BoxDecoration(
-                  color: Colors.deepPurple.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
+              SizedBox(
+                width: 300,
+                height: 300,
+                child: Lottie.asset(
+                  'assets/anims/paper_rocket.json', // Replace with your Lottie asset path
+                  width: 280,
+                  height: 280,
+                  fit: BoxFit.contain,
                 ),
-                child: const Center(
-                  child: Icon(
-                    Icons.hourglass_bottom,
-                    size: 80,
-                    color: Colors.deepPurple,
-                  ),
-                ),
-                // When implementing with actual Lottie, replace with:
-                // Lottie.asset(
-                //   '',
-                //   width: 200,
-                //   height: 200,
-                //   fit: BoxFit.contain,
-                // ),
               ),
+              const SizedBox(height: 40),
               const SizedBox(height: 40),
               Text(
                 "Pending Request",
@@ -67,33 +55,6 @@ class PendingRequestScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 40),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                decoration: BoxDecoration(
-                  color: Colors.deepPurple.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.info_outline,
-                      color: Colors.deepPurple,
-                    ),
-                    const SizedBox(width: 12),
-                    Flexible(
-                      child: Text(
-                        "You'll be notified once your request is approved",
-                        style: TextStyle(
-                          color: Colors.deepPurple,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
         ),
