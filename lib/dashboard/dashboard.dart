@@ -31,6 +31,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   List<PaymentItem> pendingPayments = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -39,6 +40,8 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Future<void> _fetchAdminPosts() async {
+    setState(() => _isLoading = true); // Show loading state
+
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       final userDoc = await FirebaseFirestore.instance
@@ -72,6 +75,8 @@ class _DashboardState extends State<Dashboard> {
         }
       }
     }
+
+    setState(() => _isLoading = false); // Hide loading state
   }
 
   @override
@@ -102,50 +107,44 @@ class _DashboardState extends State<Dashboard> {
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: _fetchAdminPosts,
-        child: Container(
-          margin: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: pendingPayments.isEmpty
-                    ? const Center(
-                        child: Card(
-                          child: Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Text("No pending payments found."),
-                          ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: _fetchAdminPosts,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount:
+                    pendingPayments.isEmpty ? 1 : pendingPayments.length + 1,
+                itemBuilder: (context, index) {
+                  if (pendingPayments.isEmpty) {
+                    return const Center(
+                      child: Card(
+                        child: Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Text("No pending payments found."),
                         ),
-                      )
-                    : ListView.builder(
-                        itemCount: pendingPayments.length +
-                            1, // Extra item for the heading
-                        itemBuilder: (context, index) {
-                          if (index == 0) {
-                            // First item: Header text
-                            return const Padding(
-                              padding: EdgeInsets.all(16.0),
-                              child: Text(
-                                "Pending Payments",
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.deepPurple,
-                                ),
-                              ),
-                            );
-                          }
-                          // Remaining items: Payment cards
-                          return _buildPaymentCard(pendingPayments[index - 1]);
-                        },
                       ),
+                    );
+                  }
+
+                  if (index == 0) {
+                    return const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text(
+                        "Pending Payments",
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.deepPurple,
+                        ),
+                      ),
+                    );
+                  }
+
+                  return _buildPaymentCard(pendingPayments[index - 1]);
+                },
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 
@@ -165,6 +164,7 @@ class _DashboardState extends State<Dashboard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Title and Urgent Tag
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -187,6 +187,8 @@ class _DashboardState extends State<Dashboard> {
               ],
             ),
             const SizedBox(height: 8),
+
+            // Description
             Text(
               payment.description,
               style: TextStyle(
@@ -194,11 +196,13 @@ class _DashboardState extends State<Dashboard> {
               ),
             ),
             const SizedBox(height: 12),
+
+            // Amount and Due Date
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "\Rs.${payment.amount.toStringAsFixed(2)}",
+                  "\₹${payment.amount.toStringAsFixed(2)}",
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -223,6 +227,8 @@ class _DashboardState extends State<Dashboard> {
               ],
             ),
             const SizedBox(height: 12),
+
+            // Payment Button
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
