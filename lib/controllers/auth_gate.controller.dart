@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:group_pay_client/auth/acception_wait.screen.dart';
 import 'package:group_pay_client/auth/join_group.dart';
 import 'package:group_pay_client/auth/signup_screen.dart';
-import 'package:group_pay_client/dashboard/dashboard.dart';
+import 'package:group_pay_client/routes/bottom_nav.route.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
@@ -56,10 +56,10 @@ class AuthGate extends StatelessWidget {
           } else if (accepted == 0) {
             return PendingRequestScreen();
           } else {
-            return Dashboard();
+            return BottomNavScreen();
           }
         } else {
-          return Dashboard();
+          return BottomNavScreen();
         }
       },
     );

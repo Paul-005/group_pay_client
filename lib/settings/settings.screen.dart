@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({Key? key}) : super(key: key);
 
-  var name = 'Paul';
+  String get userName =>
+      FirebaseAuth.instance.currentUser?.displayName ?? 'User';
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +13,8 @@ class ProfileScreen extends StatelessWidget {
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
         elevation: 0,
-        title: Text(
+        backgroundColor: Colors.white,
+        title: const Text(
           'Profile',
           style:
               TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurple),
@@ -22,8 +25,8 @@ class ProfileScreen extends StatelessWidget {
           children: [
             // Profile Header
             Container(
-              padding: EdgeInsets.only(bottom: 24),
-              decoration: BoxDecoration(
+              padding: const EdgeInsets.only(bottom: 24),
+              decoration: const BoxDecoration(
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(32),
                   bottomRight: Radius.circular(32),
@@ -31,11 +34,11 @@ class ProfileScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  const ProfilePic(),
+                  ProfilePic(name: userName),
                   const SizedBox(height: 16),
                   Text(
-                    "Hi, $name",
-                    style: TextStyle(
+                    "Hi, $userName",
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
@@ -80,13 +83,18 @@ class ProfileScreen extends StatelessWidget {
 }
 
 class ProfilePic extends StatelessWidget {
-  const ProfilePic({Key? key}) : super(key: key);
+  final String name;
+
+  const ProfilePic({
+    Key? key,
+    required this.name,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(4),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.all(4),
+      decoration: const BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,
       ),
@@ -98,9 +106,15 @@ class ProfilePic extends StatelessWidget {
           clipBehavior: Clip.none,
           children: [
             CircleAvatar(
-              backgroundColor: Colors.grey[200],
-              backgroundImage: NetworkImage(
-                  "https://cdn-icons-png.flaticon.com/128/3135/3135768.png"),
+              backgroundColor: Colors.deepPurple,
+              child: Text(
+                name.isNotEmpty ? name[0].toUpperCase() : '?',
+                style: const TextStyle(
+                  fontSize: 45,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
             Positioned(
               right: -8,
@@ -116,12 +130,12 @@ class ProfilePic extends StatelessWidget {
                       color: Colors.black.withOpacity(0.1),
                       spreadRadius: 1,
                       blurRadius: 4,
-                      offset: Offset(0, 2),
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: IconButton(
-                  icon: Icon(Icons.camera_alt_outlined,
+                  icon: const Icon(Icons.camera_alt_outlined,
                       size: 20, color: Colors.deepPurple),
                   onPressed: () {},
                 ),

@@ -5,7 +5,6 @@ Future<void> _launchGPayUrl(BuildContext context, Uri _url) async {
   try {
     if (await canLaunchUrl(_url)) {
       await launchUrl(_url);
-      print(_url);
     } else {
       _showFallbackDialog(context);
     }
@@ -75,7 +74,7 @@ class PaymentScreen extends StatelessWidget {
                         TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 20),
                 _buildPaymentMethods(context),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -112,13 +111,14 @@ class PaymentScreen extends StatelessWidget {
           Text("Description: $description",
               style: TextStyle(fontSize: 16, color: Colors.grey)),
           const Divider(height: 35, thickness: 1),
-          Text("Amount: \$${amount.toStringAsFixed(2)}",
+          Text("Amount: ₹${amount.toStringAsFixed(2)}", // Changed $ to ₹
               style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.deepPurple)),
           const SizedBox(height: 12),
-          Text("Due Date: ${dueDate.toString()}",
+          Text(
+              "Due Date: ${dueDate.toString().split(' ')[0]}", // Only showing date
               style: const TextStyle(fontSize: 16, color: Colors.grey)),
         ],
       ),
@@ -140,16 +140,13 @@ class PaymentScreen extends StatelessWidget {
           name: "Google Pay",
           color: Colors.blue,
           onTap: () {
+            final encodedBankUpi =
+                bank_upi != null ? Uri.encodeComponent(bank_upi!) : '';
             final url =
-                'upi://pay?pa=$bank_upi&pn=Admin&am=$amount&cu=INR&tn=${Uri.encodeComponent(title)}';
+                'upi://pay?pa=$encodedBankUpi&pn=Admin&am=$amount&cu=INR&tn=${Uri.encodeComponent("Payment for services")}';
             _launchGPayUrl(context, Uri.parse(url));
           },
         ),
-        _buildPaymentMethodCard(context,
-            icon: Icons.credit_card,
-            name: "Credit Card",
-            color: Colors.purple,
-            onTap: () {}),
         _buildPaymentMethodCard(context,
             icon: Icons.group,
             name: "Let Others Pay",

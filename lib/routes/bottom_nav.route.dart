@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:group_pay_client/auth/join_group.dart';
 import 'package:group_pay_client/dashboard/dashboard.dart';
 import 'package:group_pay_client/settings/settings.screen.dart';
 
@@ -22,8 +21,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
   }
 
   final pages = [
-    Dashboard(),
-    StudentAdminCodeEntry(),
+    const Dashboard(),
     ProfileScreen(),
   ];
 
@@ -34,43 +32,30 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
       bottomNavigationBar: BottomNavigationBar(
         onTap: updateCurrentIndex,
         currentIndex: currentSelectedIndex,
-        showUnselectedLabels: false,
+        showUnselectedLabels: true, // Changed to show labels
+        selectedItemColor: Colors.deepPurple,
+        unselectedItemColor: inActiveIconColor,
         type: BottomNavigationBarType.fixed,
-        elevation: 0.5,
-        items: [
+        elevation: 8, // Increased elevation for better shadow
+        backgroundColor: Colors.white,
+        selectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.normal,
+          fontSize: 12,
+        ),
+        items: const [
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.dashboard,
-              color: inActiveIconColor,
-            ),
-            activeIcon: Icon(
-              Icons.dashboard,
-              color: Colors.deepPurple,
-            ),
+            icon: Icon(Icons.dashboard_outlined),
+            activeIcon: Icon(Icons.dashboard),
             label: 'Dashboard',
             tooltip: 'Dashboard',
           ),
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.group,
-              color: inActiveIconColor,
-            ),
-            activeIcon: Icon(
-              Icons.group,
-              color: Colors.deepPurple,
-            ),
-            label: 'Manage',
-            tooltip: 'Manage Students',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.settings,
-              color: inActiveIconColor,
-            ),
-            activeIcon: Icon(
-              Icons.settings,
-              color: Colors.deepPurple,
-            ),
+            icon: Icon(Icons.settings_outlined),
+            activeIcon: Icon(Icons.settings),
             label: 'Settings',
             tooltip: 'Settings',
           ),

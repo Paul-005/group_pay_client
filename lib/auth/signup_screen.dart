@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:math';
 
 class SignupPage extends StatefulWidget {
   final VoidCallback? onLoginPressed;
@@ -12,7 +11,7 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
-  String username = '';
+  String name = ''; // Changed from username to name
   String email = '';
   String password = '';
   String confirmPassword = '';
@@ -33,14 +32,19 @@ class _SignupPageState extends State<SignupPage> {
     }
 
     setState(() {
-      _isLoading = true; // Start loading
+      _isLoading = true;
     });
 
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      // Create user account
+      final UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+
+      // Update display name in Firebase Auth
+      await userCredential.user?.updateDisplayName(name);
 
       try {
         // Get current user from Firebase Auth
@@ -49,10 +53,11 @@ class _SignupPageState extends State<SignupPage> {
         // Get current timestamp
         Timestamp createdAt = Timestamp.now();
 
-        // Create the document data
+        // Create the document data with name
         Map<String, dynamic> userData = {
           'createdAt': createdAt,
           'email': user?.email,
+          'name': name, // Add name to Firestore document
           'profile_completed': 1,
           'uid': user?.uid,
           'accepted': 0,
@@ -78,13 +83,6 @@ class _SignupPageState extends State<SignupPage> {
           ),
         );
       }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          backgroundColor: Colors.green,
-          content: Text('Account created successfully!'),
-        ),
-      );
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -97,7 +95,7 @@ class _SignupPageState extends State<SignupPage> {
       });
     } finally {
       setState(() {
-        _isLoading = false; // Stop loading
+        _isLoading = false;
       });
     }
   }
@@ -140,7 +138,8 @@ class _SignupPageState extends State<SignupPage> {
                       color: inputIsValid ? Colors.black : Colors.red,
                     ),
                     decoration: InputDecoration(
-                        hintText: "Username",
+                        hintText:
+                            "Full Name", // Changed from Username to Full Name
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
                             borderSide: BorderSide.none),
@@ -149,7 +148,7 @@ class _SignupPageState extends State<SignupPage> {
                         prefixIcon: const Icon(Icons.person)),
                     onChanged: (value) {
                       setState(() {
-                        username = value;
+                        name = value; // Changed from username to name
                       });
                     },
                   ),
@@ -223,15 +222,16 @@ class _SignupPageState extends State<SignupPage> {
                 padding: const EdgeInsets.only(top: 3, left: 3),
                 child: ElevatedButton(
                   onPressed: _isLoading
-                      ? null // Disable button when loading
+                      ? null
                       : () {
-                          if (email.isEmpty ||
+                          if (name.isEmpty || // Add name validation
+                              email.isEmpty ||
                               password.isEmpty ||
                               confirmPassword.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 backgroundColor: Colors.red,
-                                content: Text('Enter email and password'),
+                                content: Text('Please fill in all fields'),
                               ),
                             );
                             return;

@@ -24,7 +24,6 @@ class _StudentAdminCodeEntryState extends State<StudentAdminCodeEntry> {
 
   bool _isVerifying = false;
   String? _errorMessage;
-  bool _isSuccess = false;
 
   @override
   void initState() {
@@ -170,7 +169,6 @@ class _StudentAdminCodeEntryState extends State<StudentAdminCodeEntry> {
                       setState(() {
                         _isVerifying = true;
                         _errorMessage = null;
-                        _isSuccess = false;
                       });
 
                       String adminCode = _controllers.map((c) => c.text).join();
@@ -231,7 +229,6 @@ class _StudentAdminCodeEntryState extends State<StudentAdminCodeEntry> {
                           });
 
                           setState(() {
-                            _isSuccess = true;
                             _isVerifying = false;
                           });
 

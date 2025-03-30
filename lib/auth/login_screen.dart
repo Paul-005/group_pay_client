@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final VoidCallback? onSignupPressed;
+
+  const LoginPage({super.key, this.onSignupPressed});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -26,7 +28,7 @@ class _LoginPageState extends State<LoginPage> {
             _header(context),
             _inputField(context),
             _forgotPassword(context),
-            // _signup(context),
+            _signup(context),
           ],
         ),
       ),
@@ -152,6 +154,26 @@ class _LoginPageState extends State<LoginPage> {
         "Forgot password?",
         style: TextStyle(color: Colors.deepPurple),
       ),
+    );
+  }
+
+  Widget _signup(context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text("Don't have an account?"),
+        TextButton(
+          onPressed: () {
+            if (widget.onSignupPressed != null) {
+              widget.onSignupPressed!();
+            }
+          },
+          child: const Text(
+            "Sign Up",
+            style: TextStyle(color: Colors.deepPurple),
+          ),
+        ),
+      ],
     );
   }
 }
