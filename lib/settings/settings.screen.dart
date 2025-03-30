@@ -73,7 +73,9 @@ class ProfileScreen extends StatelessWidget {
               icon: Icons.logout_outlined,
               text: "Log Out",
               isDestructive: true,
-              press: () {},
+              press: () {
+                FirebaseAuth.instance.signOut();
+              },
             ),
           ],
         ),

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -19,6 +20,16 @@ class _SignupPageState extends State<SignupPage> {
   String errorMessage = '';
   bool inputIsValid = true;
   bool _isLoading = false; // Add loading state
+
+  Future<String?> getFCMToken() async {
+    try {
+      String? token = await FirebaseMessaging.instance.getToken();
+      return token;
+    } catch (e) {
+      print('Error getting FCM token: $e');
+      return '';
+    }
+  }
 
   Future<void> _signUp() async {
     if (password != confirmPassword) {
@@ -59,6 +70,7 @@ class _SignupPageState extends State<SignupPage> {
           'email': user?.email,
           'name': name, // Add name to Firestore document
           'profile_completed': 1,
+          'fcm_token': await getFCMToken(),
           'uid': user?.uid,
           'accepted': 0,
         };

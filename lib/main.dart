@@ -3,11 +3,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:group_pay_client/controllers/auth_screens.controller.dart';
 import 'package:group_pay_client/routes/bottom_nav.route.dart';
+import 'package:group_pay_client/controllers/notification_controller.dart'; // Import
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -27,6 +29,8 @@ class MyApp extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasData) {
+            // Setup push notifications after authentication
+            NotificationController.setupPushNotifications(context);
             return const BottomNavScreen();
           }
           return const AuthController();
