@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:group_pay_client/controllers/auth_gate.controller.dart';
 import 'package:group_pay_client/controllers/auth_screens.controller.dart';
 import 'package:group_pay_client/routes/bottom_nav.route.dart';
 import 'package:group_pay_client/controllers/notification_controller.dart'; // Import
@@ -22,20 +23,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
       ),
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasData) {
-            // Setup push notifications after authentication
-            NotificationController.setupPushNotifications(context);
-            return const BottomNavScreen();
-          }
-          return const AuthController();
-        },
-      ),
+      home: AuthGate(),
     );
   }
 }
