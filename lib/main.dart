@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:group_pay_client/controllers/auth_gate.controller.dart';
-import 'package:group_pay_client/controllers/auth_screens.controller.dart';
-import 'package:group_pay_client/routes/bottom_nav.route.dart';
+import 'package:group_pay_client/controllers/auth_gate.controller.dart'; // Import
 import 'package:group_pay_client/controllers/notification_controller.dart'; // Import
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
+  // Initialize notifications
   runApp(MyApp());
 }
 
@@ -18,6 +16,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Setup notifications after the app starts
+    NotificationController.setupPushNotifications(context);
+
     return MaterialApp(
       title: 'GroupPay',
       theme: ThemeData(

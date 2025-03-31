@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:group_pay_client/auth/acception_wait.screen.dart';
 import 'package:group_pay_client/auth/join_group.dart';
-import 'package:group_pay_client/auth/signup_screen.dart';
+import 'package:group_pay_client/controllers/auth_screens.controller.dart';
 import 'package:group_pay_client/routes/bottom_nav.route.dart';
 
 class AuthGate extends StatelessWidget {
@@ -15,7 +15,7 @@ class AuthGate extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return SignupPage();
+          return AuthController();
         }
 
         if (snapshot.hasData && snapshot.data != null) {
