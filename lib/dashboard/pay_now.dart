@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:group_pay_client/dashboard/paid_btn.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-Future<void> _launchGPayUrl(BuildContext context, Uri _url) async {
+Future<void> _launchGPayUrl(BuildContext context, Uri _url, String code) async {
   try {
     if (await canLaunchUrl(_url)) {
       await launchUrl(_url);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PaymentStatusButton(postId: code),
+        ),
+      );
     } else {
       _showFallbackDialog(context);
     }
@@ -37,6 +44,7 @@ class PaymentScreen extends StatelessWidget {
   final double amount;
   final DateTime dueDate;
   final String? bank_upi;
+  final String postId;
 
   const PaymentScreen({
     Key? key,
@@ -44,6 +52,7 @@ class PaymentScreen extends StatelessWidget {
     required this.description,
     required this.amount,
     required this.dueDate,
+    required this.postId,
     this.bank_upi,
   }) : super(key: key);
 
@@ -144,7 +153,7 @@ class PaymentScreen extends StatelessWidget {
                 bank_upi != null ? Uri.encodeComponent(bank_upi!) : '';
             final url =
                 'upi://pay?pa=$encodedBankUpi&pn=Admin&am=$amount&cu=INR&tn=${Uri.encodeComponent("Payment for services")}';
-            _launchGPayUrl(context, Uri.parse(url));
+            _launchGPayUrl(context, Uri.parse(url), postId);
           },
         ),
         _buildPaymentMethodCard(context,

@@ -11,6 +11,7 @@ class PaymentItem {
   final DateTime dueDate;
   final bool isUrgent;
   final String bank_upi;
+  final String postId;
 
   PaymentItem({
     required this.title,
@@ -19,6 +20,7 @@ class PaymentItem {
     required this.dueDate,
     this.isUrgent = false,
     required this.bank_upi,
+    required this.postId,
   });
 }
 
@@ -39,6 +41,8 @@ class _DashboardState extends State<Dashboard> {
     _fetchAdminPosts();
   }
 
+  var code;
+
   Future<void> _fetchAdminPosts() async {
     setState(() => _isLoading = true); // Show loading state
 
@@ -51,6 +55,7 @@ class _DashboardState extends State<Dashboard> {
 
       if (userDoc.exists) {
         final adminCode = userDoc.data()?['adminCode'] as String?;
+        code = adminCode;
 
         if (adminCode != null) {
           final postsSnapshot = await FirebaseFirestore.instance
@@ -68,6 +73,7 @@ class _DashboardState extends State<Dashboard> {
                 dueDate: (data['lastDate'] as Timestamp?)?.toDate() ??
                     DateTime.now(),
                 bank_upi: data['bank_upi'] ?? 'No UPI',
+                postId: data['postId'],
               );
             }).toList();
             pendingPayments.sort((a, b) => a.dueDate.compareTo(b.dueDate));
@@ -243,6 +249,7 @@ class _DashboardState extends State<Dashboard> {
                           amount: payment.amount,
                           dueDate: payment.dueDate,
                           bank_upi: payment.bank_upi,
+                          postId: payment.postId,
                         ),
                       ),
                     );
