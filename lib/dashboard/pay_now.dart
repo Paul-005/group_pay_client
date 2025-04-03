@@ -6,12 +6,6 @@ Future<void> _launchGPayUrl(BuildContext context, Uri _url, String code) async {
   try {
     if (await canLaunchUrl(_url)) {
       await launchUrl(_url);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PaymentStatusButton(postId: code),
-        ),
-      );
     } else {
       _showFallbackDialog(context);
     }
@@ -148,12 +142,20 @@ class PaymentScreen extends StatelessWidget {
           icon: Icons.account_balance_wallet,
           name: "Google Pay",
           color: Colors.blue,
+          // onTap: () {
+          //   final encodedBankUpi =
+          //       bank_upi != null ? Uri.encodeComponent(bank_upi!) : '';
+          //   final url =
+          //       'upi://pay?pa=$encodedBankUpi&pn=Admin&am=$amount&cu=INR&tn=${Uri.encodeComponent("Payment for services")}';
+          //   _launchGPayUrl(context, Uri.parse(url), postId);
+          // },
           onTap: () {
-            final encodedBankUpi =
-                bank_upi != null ? Uri.encodeComponent(bank_upi!) : '';
-            final url =
-                'upi://pay?pa=$encodedBankUpi&pn=Admin&am=$amount&cu=INR&tn=${Uri.encodeComponent("Payment for services")}';
-            _launchGPayUrl(context, Uri.parse(url), postId);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PaymentStatusButton(postId: postId),
+              ),
+            );
           },
         ),
         _buildPaymentMethodCard(context,

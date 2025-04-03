@@ -26,13 +26,19 @@ class _PaymentStatusButtonState extends State<PaymentStatusButton> {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
 
+      // Create the user map object that matches the structure in unpaid array
+      final userMap = {
+        'email': user.email,
+        'uid': user.uid,
+      };
+
       // Update Firestore
       await FirebaseFirestore.instance
           .collection('posts')
           .doc(widget.postId)
           .update({
-        'paid': FieldValue.arrayUnion([user]),
-        'unpaid': FieldValue.arrayRemove([user.uid]),
+        'paid': FieldValue.arrayUnion([userMap]),
+        'unpaid': FieldValue.arrayRemove([userMap]),
       });
 
       if (mounted) {
