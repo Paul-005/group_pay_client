@@ -1,5 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:group_pay_client/dashboard/paid_btn.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 Future<void> _launchGPayUrl(BuildContext context, Uri _url, String code) async {
@@ -142,20 +143,80 @@ class PaymentScreen extends StatelessWidget {
           icon: Icons.account_balance_wallet,
           name: "Google Pay",
           color: Colors.blue,
-          // onTap: () {
-          //   final encodedBankUpi =
-          //       bank_upi != null ? Uri.encodeComponent(bank_upi!) : '';
-          //   final url =
-          //       'upi://pay?pa=$encodedBankUpi&pn=Admin&am=$amount&cu=INR&tn=${Uri.encodeComponent("Payment for services")}';
-          //   _launchGPayUrl(context, Uri.parse(url), postId);
-          // },
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PaymentStatusButton(postId: postId),
-              ),
-            );
+          onTap: () async {
+            final encodedBankUpi =
+                bank_upi != null ? Uri.encodeComponent(bank_upi!) : '';
+            final url =
+                'upi://pay?pa=$encodedBankUpi&pn=Admin&am=$amount&cu=INR&tn=${Uri.encodeComponent("Payment for services")}';
+            _launchGPayUrl(context, Uri.parse(url), postId);
+
+            try {
+              final user = FirebaseAuth.instance.currentUser;
+              if (user == null) return;
+
+              // Create the user map object that matches the structure in unpaid array
+              final userMap = {
+                'email': user.email,
+                'uid': user.uid,
+              };
+
+              // Update Firestore
+              await FirebaseFirestore.instance
+                  .collection('posts')
+                  .doc(postId)
+                  .update({
+                'paid': FieldValue.arrayUnion([userMap]),
+                'unpaid': FieldValue.arrayRemove([userMap]),
+              });
+
+              // Get the group id from the post
+              final postDoc = await FirebaseFirestore.instance
+                  .collection('posts')
+                  .doc(postId)
+                  .get();
+
+              // First, get the current posts array
+              final groupDoc = await FirebaseFirestore.instance
+                  .collection('groups')
+                  .doc(postDoc.data()?['adminCode'])
+                  .get();
+
+              // Update the specific post's paid count in the posts array
+              final posts = List<Map<String, dynamic>>.from(
+                  groupDoc.data()?['posts'] ?? []);
+              final postIndex =
+                  posts.indexWhere((post) => post['postId'] == postId);
+
+              if (postIndex != -1) {
+                posts[postIndex]['paid'] = (posts[postIndex]['paid'] ?? 0) + 1;
+              }
+
+              // Update the group document
+              await FirebaseFirestore.instance
+                  .collection('groups')
+                  .doc(postDoc.data()?['adminCode'])
+                  .update({
+                'posts': posts,
+                'payment_date': FieldValue.serverTimestamp(),
+              });
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Payment marked as completed'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Failed to update payment status'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+              print(e.toString());
+            } finally {
+              Navigator.pop(context);
+            }
           },
         ),
         _buildPaymentMethodCard(context,

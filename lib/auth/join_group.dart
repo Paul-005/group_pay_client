@@ -209,6 +209,7 @@ class _StudentAdminCodeEntryState extends State<StudentAdminCodeEntry> {
                           Map<String, dynamic> studentRequest = {
                             'email': user?.email,
                             'uid': user?.uid,
+                            'name': user?.displayName,
                             'createdAt': createdAt,
                           };
 

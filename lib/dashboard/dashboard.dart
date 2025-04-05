@@ -88,187 +88,432 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FE),
       appBar: AppBar(
-        title: const Text(
-          "GroupPay",
-          style: TextStyle(
-            color: Colors.deepPurple,
-            fontWeight: FontWeight.bold,
-          ),
+        title: const Row(
+          children: [
+            Icon(
+              Icons.account_balance_wallet_rounded,
+              color: Color(0xFF7E57C2),
+              size: 28,
+            ),
+            SizedBox(width: 12),
+            Text(
+              "GroupPay",
+              style: TextStyle(
+                color: Color(0xFF673AB7),
+                fontWeight: FontWeight.bold,
+                fontSize: 24,
+              ),
+            ),
+          ],
         ),
         elevation: 0,
         backgroundColor: Colors.white,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.deepPurple),
-            onPressed: () {
-              // TODO: Implement notifications
-            },
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFF7E57C2).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: IconButton(
+              icon: const Icon(
+                Icons.notifications_outlined,
+                color: Color(0xFF7E57C2),
+              ),
+              onPressed: () {
+                // TODO: Implement notifications
+              },
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.deepPurple),
-            onPressed: () {
-              FirebaseAuth.instance.signOut();
-            },
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF7E57C2).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: IconButton(
+              icon: const Icon(
+                Icons.logout_rounded,
+                color: Color(0xFF7E57C2),
+              ),
+              onPressed: () {
+                FirebaseAuth.instance.signOut();
+              },
+            ),
           ),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF7E57C2).withOpacity(0.1),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF7E57C2)),
+                ),
+              ),
+            )
           : RefreshIndicator(
               onRefresh: _fetchAdminPosts,
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount:
-                    pendingPayments.isEmpty ? 1 : pendingPayments.length + 1,
-                itemBuilder: (context, index) {
-                  if (pendingPayments.isEmpty) {
-                    return const Center(
-                      child: Card(
-                        child: Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Text("No pending payments found."),
+              color: const Color(0xFF7E57C2),
+              child: CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Container(
+                      margin: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFF7E57C2),
+                            Color(0xFF673AB7),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF7E57C2).withOpacity(0.3),
+                            blurRadius: 15,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
                       ),
-                    );
-                  }
-
-                  if (index == 0) {
-                    return const Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Text(
-                        "Pending Payments",
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Payment Summary",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "${pendingPayments.length}",
+                                    style: const TextStyle(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const Text(
+                                    "Pending Payments",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(
+                                  Icons.receipt_long_rounded,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    sliver: SliverToBoxAdapter(
+                      child: const Text(
+                        "Recent Payments",
                         style: TextStyle(
-                          fontSize: 24,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
+                          color: Color(0xFF673AB7),
                         ),
                       ),
-                    );
-                  }
-
-                  return _buildPaymentCard(pendingPayments[index - 1]);
-                },
+                    ),
+                  ),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: 16),
+                  ),
+                  pendingPayments.isEmpty
+                      ? SliverFillRemaining(
+                          child: Container(
+                            margin: const EdgeInsets.all(20),
+                            padding: const EdgeInsets.all(32),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color:
+                                      const Color(0xFF7E57C2).withOpacity(0.1),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF7E57C2)
+                                        .withOpacity(0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.check_circle_outline_rounded,
+                                    size: 48,
+                                    color: Color(0xFF7E57C2),
+                                  ),
+                                ),
+                                const SizedBox(height: 24),
+                                const Text(
+                                  "All Caught Up!",
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF673AB7),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  "No pending payments at the moment",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : SliverPadding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          sliver: SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) =>
+                                  _buildPaymentCard(pendingPayments[index]),
+                              childCount: pendingPayments.length,
+                            ),
+                          ),
+                        ),
+                ],
               ),
             ),
     );
   }
 
   Widget _buildPaymentCard(PaymentItem payment) {
-    // Calculate days remaining
     final daysRemaining = payment.dueDate.difference(DateTime.now()).inDays;
+    final isOverdue = payment.dueDate.isBefore(DateTime.now());
 
-    return Card(
-      color: Colors.white,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.deepPurple.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Title and Urgent Tag
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  payment.title,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple,
-                  ),
-                ),
-                if (payment.isUrgent)
-                  const Text(
-                    "URGENT",
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 8),
-
-            // Description
-            Text(
-              payment.description,
-              style: TextStyle(
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Amount and Due Date
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "\₹${payment.amount.toStringAsFixed(2)}",
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple,
-                  ),
-                ),
-                if (payment.dueDate.isBefore(DateTime.now()))
-                  const Text(
-                    "Overdue",
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  )
-                else
-                  Text(
-                    "Due in $daysRemaining days",
-                    style: TextStyle(
-                      color: daysRemaining <= 3 ? Colors.red : Colors.grey,
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // Payment Button
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PaymentScreen(
-                          title: payment.title,
-                          description: payment.description,
-                          amount: payment.amount,
-                          dueDate: payment.dueDate,
-                          bank_upi: payment.bank_upi,
-                          postId: payment.postId,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => _navigateToPayment(payment),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              payment.title,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.deepPurple,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              payment.description,
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    );
-                  },
-                  icon: Icon(
-                    Icons.monetization_on_rounded,
-                    color: Colors.deepPurple,
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isOverdue
+                              ? Colors.red.withOpacity(0.1)
+                              : Colors.deepPurple.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        // Show "Pay Today" when zero days left
+                        child: Text(
+                          daysRemaining == 0
+                              ? "Pay Today"
+                              : isOverdue
+                                  ? "Overdue"
+                                  : "$daysRemaining days left",
+                          style: TextStyle(
+                            color: isOverdue ? Colors.red : Colors.deepPurple,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  label: Text(
-                    'Make Payment',
-                    style: TextStyle(
-                      color: Colors.deepPurple,
-                      fontWeight: FontWeight.bold,
+                  const SizedBox(height: 16),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFF7E57C2), // Deep Purple 400
+                          Color(0xFF673AB7), // Deep Purple 500
+                        ],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.deepPurple.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => _navigateToPayment(payment),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Amount Due',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    "₹${payment.amount.toStringAsFixed(2)}",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Text(
+                                    'Pay Now',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(
+                                      Icons.arrow_forward_rounded,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _navigateToPayment(PaymentItem payment) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaymentScreen(
+          title: payment.title,
+          description: payment.description,
+          amount: payment.amount,
+          dueDate: payment.dueDate,
+          bank_upi: payment.bank_upi,
+          postId: payment.postId,
         ),
       ),
     );
