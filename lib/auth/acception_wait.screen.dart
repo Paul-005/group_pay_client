@@ -8,9 +8,9 @@ class PendingRequestScreen extends StatelessWidget {
   final String groupName;
 
   const PendingRequestScreen({
-    Key? key,
+    super.key,
     this.groupName = "Group", // Default value if group name is not provided
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

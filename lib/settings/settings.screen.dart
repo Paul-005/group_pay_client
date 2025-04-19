@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfileScreen extends StatelessWidget {
-  ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   String get userName =>
       FirebaseAuth.instance.currentUser?.displayName ?? 'User';
@@ -88,9 +88,9 @@ class ProfilePic extends StatelessWidget {
   final String name;
 
   const ProfilePic({
-    Key? key,
+    super.key,
     required this.name,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -152,12 +152,12 @@ class ProfilePic extends StatelessWidget {
 
 class ProfileMenu extends StatelessWidget {
   const ProfileMenu({
-    Key? key,
+    super.key,
     required this.text,
     required this.icon,
     this.press,
     this.isDestructive = false,
-  }) : super(key: key);
+  });
 
   final String text;
   final IconData icon;

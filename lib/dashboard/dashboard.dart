@@ -110,40 +110,6 @@ class _DashboardState extends State<Dashboard> {
         ),
         elevation: 0,
         backgroundColor: Colors.white,
-        actions: [
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFF7E57C2).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              icon: const Icon(
-                Icons.notifications_outlined,
-                color: Color(0xFF7E57C2),
-              ),
-              onPressed: () {
-                // TODO: Implement notifications
-              },
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-            decoration: BoxDecoration(
-              color: const Color(0xFF7E57C2).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              icon: const Icon(
-                Icons.logout_rounded,
-                color: Color(0xFF7E57C2),
-              ),
-              onPressed: () {
-                FirebaseAuth.instance.signOut();
-              },
-            ),
-          ),
-        ],
       ),
       body: _isLoading
           ? Center(

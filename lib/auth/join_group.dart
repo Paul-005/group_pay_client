@@ -5,8 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class StudentAdminCodeEntry extends StatefulWidget {
   const StudentAdminCodeEntry({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<StudentAdminCodeEntry> createState() => _StudentAdminCodeEntryState();

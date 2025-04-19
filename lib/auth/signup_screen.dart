@@ -251,6 +251,11 @@ class _SignupPageState extends State<SignupPage> {
                             _signUp();
                           }
                         },
+                  style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: Colors.deepPurple,
+                  ),
                   child: _isLoading
                       ? const CircularProgressIndicator(
                           valueColor:
@@ -260,11 +265,6 @@ class _SignupPageState extends State<SignupPage> {
                           "Sign up",
                           style: TextStyle(fontSize: 20, color: Colors.white),
                         ),
-                  style: ElevatedButton.styleFrom(
-                    shape: const StadiumBorder(),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.deepPurple,
-                  ),
                 ),
               ),
               TextButton(

@@ -3,10 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-Future<void> _launchGPayUrl(BuildContext context, Uri _url, String code) async {
+Future<void> _launchGPayUrl(BuildContext context, Uri url, String code) async {
   try {
-    if (await canLaunchUrl(_url)) {
-      await launchUrl(_url);
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
     } else {
       _showFallbackDialog(context);
     }
@@ -42,14 +42,14 @@ class PaymentScreen extends StatelessWidget {
   final String postId;
 
   const PaymentScreen({
-    Key? key,
+    super.key,
     required this.title,
     required this.description,
     required this.amount,
     required this.dueDate,
     required this.postId,
     this.bank_upi,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -153,11 +153,14 @@ class PaymentScreen extends StatelessWidget {
             try {
               final user = FirebaseAuth.instance.currentUser;
               if (user == null) return;
+              Timestamp createdAt = Timestamp.now();
 
               // Create the user map object that matches the structure in unpaid array
               final userMap = {
                 'email': user.email,
                 'uid': user.uid,
+                'name': user.displayName,
+                'payment_date': createdAt,
               };
 
               // Update Firestore

@@ -3,7 +3,7 @@ import 'package:group_pay_client/auth/login_screen.dart';
 import 'package:group_pay_client/auth/signup_screen.dart';
 
 class AuthController extends StatefulWidget {
-  const AuthController({Key? key}) : super(key: key);
+  const AuthController({super.key});
 
   @override
   State<AuthController> createState() => _AuthControllerState();
