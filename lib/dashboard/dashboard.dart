@@ -44,7 +44,7 @@ class _DashboardState extends State<Dashboard> {
   var code;
 
   Future<void> _fetchAdminPosts() async {
-    setState(() => _isLoading = true); // Show loading state
+    setState(() => _isLoading = true);
 
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -64,7 +64,18 @@ class _DashboardState extends State<Dashboard> {
               .get();
 
           setState(() {
-            pendingPayments = postsSnapshot.docs.map((doc) {
+            pendingPayments = postsSnapshot.docs.where((doc) {
+              // Get the paid array from the post document
+              final paidArray =
+                  List<Map<String, dynamic>>.from(doc.data()['paid'] ?? []);
+
+              // Check if current user's uid exists in paid array
+              final isPaid =
+                  paidArray.any((paidUser) => paidUser['uid'] == user.uid);
+
+              // Only include payments where user hasn't paid
+              return !isPaid;
+            }).map((doc) {
               final data = doc.data();
               return PaymentItem(
                 title: data['title'] ?? 'No Title',
@@ -76,13 +87,15 @@ class _DashboardState extends State<Dashboard> {
                 postId: data['postId'],
               );
             }).toList();
+
+            // Sort by due date
             pendingPayments.sort((a, b) => a.dueDate.compareTo(b.dueDate));
           });
         }
       }
     }
 
-    setState(() => _isLoading = false); // Hide loading state
+    setState(() => _isLoading = false);
   }
 
   @override

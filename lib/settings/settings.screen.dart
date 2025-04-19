@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:group_pay_client/settings/edit_profile.screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -52,7 +53,14 @@ class ProfileScreen extends StatelessWidget {
             ProfileMenu(
               icon: Icons.person_outline,
               text: "My Account",
-              press: () {},
+              press: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const EditProfileScreen(),
+                  ),
+                );
+              },
             ),
             ProfileMenu(
               icon: Icons.notifications_outlined,

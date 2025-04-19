@@ -227,13 +227,161 @@ class PaymentScreen extends StatelessWidget {
             name: "Let Others Pay",
             color: Colors.green,
             onTap: () {}),
-        _buildPaymentMethodCard(context,
-            icon: Icons.money,
-            name: "Cash",
-            color: Colors.orange,
-            onTap: () {}),
+        _buildPaymentMethodCard(
+          context,
+          icon: Icons.money,
+          name: "Cash",
+          color: Colors.green,
+          onTap: () => _handleCashPayment(context),
+        ),
       ],
     );
+  }
+
+  Future<void> _handleCashPayment(BuildContext context) async {
+    // Show confirmation dialog
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            'Confirm Cash Payment',
+            style: TextStyle(
+              color: Colors.deepPurple,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: const Text(
+            'By confirming, you indicate that you will pay in cash. The admin will need to verify your payment.',
+            style: TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.grey),
+              ),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurple,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text('Confirm'),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      try {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user == null) {
+          print('Error: No user logged in');
+          throw Exception('No user logged in');
+        }
+
+        // First check if the document exists
+        final postDoc = await FirebaseFirestore.instance
+            .collection('posts')
+            .doc(postId)
+            .get();
+
+        if (!postDoc.exists) {
+          print('Error: Post document does not exist with ID: $postId');
+          throw Exception('Post document does not exist');
+        }
+
+        // Get current cash_payers array
+        final currentCashPayers = List<Map<String, dynamic>>.from(
+            postDoc.data()?['cash_payers'] ?? []);
+
+        // Add new cash payment with current timestamp
+        currentCashPayers.add({
+          'email': user.email,
+          'uid': user.uid,
+          'name': user.displayName ?? 'Unknown',
+          'amount': amount,
+          'timestamp': DateTime.now().toIso8601String(),
+        });
+
+        // Update Firestore with the new array
+        await FirebaseFirestore.instance
+            .collection('posts')
+            .doc(postId)
+            .update({
+          'cash_payers': currentCashPayers,
+        });
+
+        print('Successfully updated Firestore with cash payment');
+
+        if (context.mounted) {
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.white),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Cash payment recorded. Please pay the admin and wait for confirmation.',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 4),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              ),
+            ),
+          );
+
+          // Navigate back
+          Navigator.pop(context);
+        }
+      } catch (e, stackTrace) {
+        print('Error in _handleCashPayment:');
+        print('Error message: $e');
+        print('Stack trace: $stackTrace');
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.error_outline, color: Colors.white),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Error: ${e.toString()}',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              ),
+            ),
+          );
+        }
+      }
+    }
   }
 
   Widget _buildPaymentMethodCard(BuildContext context,
