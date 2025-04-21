@@ -41,61 +41,86 @@ class _DashboardState extends State<Dashboard> {
     _fetchAdminPosts();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Refresh data when user lands on dashboard
+    _fetchAdminPosts();
+  }
+
   var code;
 
   Future<void> _fetchAdminPosts() async {
+    if (!mounted) return; // Check if widget is still mounted
+
     setState(() => _isLoading = true);
 
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final userDoc = await FirebaseFirestore.instance
-          .collection('students')
-          .doc(user.uid)
-          .get();
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final userDoc = await FirebaseFirestore.instance
+            .collection('students')
+            .doc(user.uid)
+            .get();
 
-      if (userDoc.exists) {
-        final adminCode = userDoc.data()?['adminCode'] as String?;
-        code = adminCode;
+        if (userDoc.exists) {
+          final adminCode = userDoc.data()?['adminCode'] as String?;
+          code = adminCode;
 
-        if (adminCode != null) {
-          final postsSnapshot = await FirebaseFirestore.instance
-              .collection('posts')
-              .where('adminCode', isEqualTo: adminCode)
-              .get();
+          if (adminCode != null) {
+            final postsSnapshot = await FirebaseFirestore.instance
+                .collection('posts')
+                .where('adminCode', isEqualTo: adminCode)
+                .get();
 
-          setState(() {
-            pendingPayments = postsSnapshot.docs.where((doc) {
-              // Get the paid array from the post document
-              final paidArray =
-                  List<Map<String, dynamic>>.from(doc.data()['paid'] ?? []);
+            if (!mounted) return; // Check again before updating state
 
-              // Check if current user's uid exists in paid array
-              final isPaid =
-                  paidArray.any((paidUser) => paidUser['uid'] == user.uid);
+            setState(() {
+              pendingPayments = postsSnapshot.docs.where((doc) {
+                // Get the paid array from the post document
+                final paidArray =
+                    List<Map<String, dynamic>>.from(doc.data()['paid'] ?? []);
 
-              // Only include payments where user hasn't paid
-              return !isPaid;
-            }).map((doc) {
-              final data = doc.data();
-              return PaymentItem(
-                title: data['title'] ?? 'No Title',
-                description: data['description'] ?? 'No Description',
-                amount: (data['amount'] as num?)?.toDouble() ?? 0.0,
-                dueDate: (data['lastDate'] as Timestamp?)?.toDate() ??
-                    DateTime.now(),
-                bank_upi: data['bank_upi'] ?? 'No UPI',
-                postId: data['postId'],
-              );
-            }).toList();
+                // Check if current user's uid exists in paid array
+                final isPaid =
+                    paidArray.any((paidUser) => paidUser['uid'] == user.uid);
 
-            // Sort by due date
-            pendingPayments.sort((a, b) => a.dueDate.compareTo(b.dueDate));
-          });
+                // Only include payments where user hasn't paid
+                return !isPaid;
+              }).map((doc) {
+                final data = doc.data();
+                return PaymentItem(
+                  title: data['title'] ?? 'No Title',
+                  description: data['description'] ?? 'No Description',
+                  amount: (data['amount'] as num?)?.toDouble() ?? 0.0,
+                  dueDate: (data['lastDate'] as Timestamp?)?.toDate() ??
+                      DateTime.now(),
+                  bank_upi: data['bank_upi'] ?? 'No UPI',
+                  postId: data['postId'],
+                );
+              }).toList();
+
+              // Sort by due date
+              pendingPayments.sort((a, b) => a.dueDate.compareTo(b.dueDate));
+            });
+          }
         }
       }
+    } catch (e) {
+      print('Error fetching admin posts: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to load payments. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
-
-    setState(() => _isLoading = false);
   }
 
   @override

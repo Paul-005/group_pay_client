@@ -155,8 +155,27 @@ class PaymentScreen extends StatelessWidget {
               if (user == null) return;
               Timestamp createdAt = Timestamp.now();
 
-              // Create the user map object that matches the structure in unpaid array
-              final userMap = {
+              // First get the current unpaid array to find the exact user map to remove
+              final postDoc = await FirebaseFirestore.instance
+                  .collection('posts')
+                  .doc(postId)
+                  .get();
+
+              final unpaidArray = List<Map<String, dynamic>>.from(
+                  postDoc.data()?['unpaid'] ?? []);
+
+              // Find the exact user map in unpaid array
+              final userMapToRemove = unpaidArray.firstWhere(
+                (map) => map['uid'] == user.uid,
+                orElse: () => {
+                  'email': user.email,
+                  'uid': user.uid,
+                  'name': user.displayName,
+                },
+              );
+
+              // Create the new paid user map
+              final paidUserMap = {
                 'email': user.email,
                 'uid': user.uid,
                 'name': user.displayName,
@@ -168,23 +187,17 @@ class PaymentScreen extends StatelessWidget {
                   .collection('posts')
                   .doc(postId)
                   .update({
-                'paid': FieldValue.arrayUnion([userMap]),
-                'unpaid': FieldValue.arrayRemove([userMap]),
+                'paid': FieldValue.arrayUnion([paidUserMap]),
+                'unpaid': FieldValue.arrayRemove([userMapToRemove]),
               });
 
               // Get the group id from the post
-              final postDoc = await FirebaseFirestore.instance
-                  .collection('posts')
-                  .doc(postId)
-                  .get();
-
-              // First, get the current posts array
               final groupDoc = await FirebaseFirestore.instance
                   .collection('groups')
                   .doc(postDoc.data()?['adminCode'])
                   .get();
 
-              // Update the specific post's paid count in the posts array
+              // First, get the current posts array
               final posts = List<Map<String, dynamic>>.from(
                   groupDoc.data()?['posts'] ?? []);
               final postIndex =
