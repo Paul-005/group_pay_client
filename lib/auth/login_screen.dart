@@ -44,6 +44,12 @@ class _LoginPageState extends State<LoginPage> {
   _header(context) {
     return Column(
       children: [
+        Image.asset(
+          'assets/logo.png',
+          height: 100,
+          width: 100,
+        ),
+        const SizedBox(height: 20),
         const Text(
           "Welcome Back",
           style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),

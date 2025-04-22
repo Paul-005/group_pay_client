@@ -235,11 +235,6 @@ class PaymentScreen extends StatelessWidget {
             }
           },
         ),
-        _buildPaymentMethodCard(context,
-            icon: Icons.group,
-            name: "Let Others Pay",
-            color: Colors.green,
-            onTap: () {}),
         _buildPaymentMethodCard(
           context,
           icon: Icons.money,
@@ -417,7 +412,13 @@ class PaymentScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                     color: color.withOpacity(0.1), shape: BoxShape.circle),
-                child: Icon(icon, color: color, size: 28),
+                child: name == "Google Pay"
+                    ? Image.asset(
+                        'assets/google_pay.png',
+                        height: 28,
+                        width: 28,
+                      )
+                    : Icon(icon, color: color, size: 28),
               ),
               const SizedBox(height: 10),
               Text(name,

@@ -128,15 +128,15 @@ class _DashboardState extends State<Dashboard> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FE),
       appBar: AppBar(
-        title: const Row(
+        title: Row(
           children: [
-            Icon(
-              Icons.account_balance_wallet_rounded,
-              color: Color(0xFF7E57C2),
-              size: 28,
+            Image.asset(
+              'assets/logo.png',
+              height: 40,
+              width: 40,
             ),
-            SizedBox(width: 12),
-            Text(
+            const SizedBox(width: 4),
+            const Text(
               "GroupPay",
               style: TextStyle(
                 color: Color(0xFF673AB7),
